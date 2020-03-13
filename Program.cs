@@ -93,19 +93,21 @@ namespace TeleBot
 
             if (e.Message.ReplyToMessage != null)
             {
-                AddAnswerForQuestionInDataBase(GetIdQuestionInDataBase(e.Message.ReplyToMessage.Text, path), e.Message.Text, path);
+                AddAnswerForQuestionInDataBase_Async(GetIdQuestionInDataBase_Async(e.Message.ReplyToMessage.Text, path).GetAwaiter().GetResult(), e.Message.Text, path);
             }
 
-            if (!IsQuestionInDataBase(e.Message.Text, path))
+            if (!IsQuestionInDataBase_Async(e.Message.Text, path).GetAwaiter().GetResult())
             {
-                AddQuestionInDataBase(e.Message.Text, path);
+                AddQuestionInDataBase_Async(e.Message.Text, path);
                 Console.WriteLine($"Добавлен вопрос {e.Message.Text}");
                 client.SendTextMessageAsync(e.Message.Chat.Id, "Я не знаю ответа... Расскажи мне его, Cударь (нажми редактировать вопрос)");
             }
             else
             {
                 Console.WriteLine($"Ответ на вопрос {e.Message.Text} есть");
-                client.SendTextMessageAsync(e.Message.Chat.Id, GetAnswerInDataBase(GetIdQuestionInDataBase(e.Message.Text, path), path));
+                client.SendTextMessageAsync(e.Message.Chat.Id, 
+                    GetAnswerInDataBase_Async(GetIdQuestionInDataBase_Async(e.Message.Text, path).GetAwaiter().GetResult()
+                    , path).GetAwaiter().GetResult());
             }
         }
         /// <summary>
@@ -133,7 +135,8 @@ namespace TeleBot
                 }
             }
         }
-
+        private static async void AddQuestionInDataBase_Async(string question, string path_to_db) => 
+            await Task<string>.Run(() => AddQuestionInDataBase(question, path_to_db));
         private static string GetAnswerInDataBase(int id_question, string path_to_db)
         {
             string s = String.Empty;
@@ -165,7 +168,8 @@ namespace TeleBot
             }
             return s;
         }
-
+        private static async Task<string> GetAnswerInDataBase_Async(int id_question, string path_to_db) => 
+            await Task<string>.Run(() => GetAnswerInDataBase(id_question, path_to_db));
         private static int GetIdQuestionInDataBase(string question, string path_to_db)
         {
             int s = -1;
@@ -195,7 +199,8 @@ namespace TeleBot
             }
             return s;
         }
-
+        private static async Task<int> GetIdQuestionInDataBase_Async(string question, string path_to_db) => 
+            await Task<int>.Run(() => GetIdQuestionInDataBase(question, path_to_db));
         private static void AddAnswerForQuestionInDataBase(int id_question, string answer, string path_to_db)
         {
             using (SQLiteConnection connection = new SQLiteConnection($"Data Source = {path}"))
@@ -217,6 +222,8 @@ namespace TeleBot
                 }
             }
         }
+        private static async void AddAnswerForQuestionInDataBase_Async(int id_question, string answer, string path_to_db) => 
+            await Task.Run(() => AddAnswerForQuestionInDataBase(id_question, answer, path_to_db));
         /// <summary>
         /// Chech question in local data base file
         /// </summary>
@@ -251,5 +258,7 @@ namespace TeleBot
             }
             return false;
         }
+        private static async Task<bool> IsQuestionInDataBase_Async(string question, string path_to_db) => 
+            await Task<bool>.Run(() => IsQuestionInDataBase(question, path_to_db));
     }
 }
