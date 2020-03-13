@@ -150,12 +150,15 @@ namespace TeleBot
                             reader.Read();
                             //connection.Close();
                             s = reader.GetString(0);
+
+                        reader.Close();
                         }
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine(ex.Message);
                     }
+
                 }
             }
             return s;
@@ -179,6 +182,7 @@ namespace TeleBot
                             reader.Read();
                             //connection.Close();
                             s = reader.GetInt32(0);
+                            reader.Close();
                         }
                     }
                     catch (Exception ex)
