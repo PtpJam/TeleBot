@@ -2,8 +2,8 @@
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using System.Data.SQLite;
-using Telegram.Bot.Types.ReplyMarkups;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TeleBot
 {
@@ -14,8 +14,8 @@ namespace TeleBot
         static string path = "botDB.sqlite";
         static void Main(string[] args)
         {
-            if (!CheckExistDataBase(path))
-                CreateDataBase(path);
+            if (!CheckExistDataBase_Async(path).GetAwaiter().GetResult())
+                CreateDataBase_Async(path);
 
             client = new TelegramBotClient("1030848716:AAGfvtCqc0bL6HV9y_2ddXsRi96GkKnekD0");
             client.OnMessage += getMsg;
@@ -36,6 +36,7 @@ namespace TeleBot
         /// <param name="path">Path to DataBase file</param>
         /// <returns></returns>
         private static bool CheckExistDataBase(string path) => File.Exists(path);
+        private static async Task<bool> CheckExistDataBase_Async(string path) => await Task<bool>.Run(() => CheckExistDataBase(path));
         /// <summary>
         /// create empty database file by path
         /// </summary>
@@ -77,6 +78,7 @@ namespace TeleBot
                 }
             }
         }
+        private static async void CreateDataBase_Async(string path)  => await Task.Run(() => CreateDataBase(path));
         /// <summary>
         /// event for inner message in bot from user
         /// </summary>
