@@ -155,15 +155,47 @@ namespace TeleBot
             {
                 connection.Open();
 
+                SQLiteDataReader reader = null;
+                int count = 0;
                 using (SQLiteCommand command = new SQLiteCommand($"SELECT [text] FROM Answer WHERE [ID_QUESTION] = @id_q", connection))
                 {
                     try
                     {
                         command.Parameters.Add(new SQLiteParameter("@id_q", id_question));
-                        SQLiteDataReader reader = command.ExecuteReader();
+                        reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            count++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                }
+                using (SQLiteCommand command = new SQLiteCommand($"SELECT [text] FROM Answer WHERE [ID_QUESTION] = @id_q", connection))
+                {
+                    try
+                    {
+                        command.Parameters.Add(new SQLiteParameter("@id_q", id_question));
+                        reader = command.ExecuteReader();
                         if (reader.HasRows)
                         {
-                            reader.Read();
+
+
+                            int ans_id = 0;
+                            if (count > 1)
+                            {
+                                Random r = new Random();
+                                ans_id = r.Next(0, count);
+                            }
+
+
+                            for (int i = 0; i < ans_id + 1; i++)
+                            {
+                                reader.Read();
+                            }
                             //connection.Close();
                             s = reader.GetString(0);
 
